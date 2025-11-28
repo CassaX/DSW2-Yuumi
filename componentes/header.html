@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site de Receitas</title>
+    <script src="tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="w-full bg-[#FFEAA2] font-poppins shadow-md relative z-50">
+        <div class="container mx-auto px-4 h-24 flex justify-between items-center">
+            
+            <div class="flex-shrink-0">
+                <a href="index.html">
+                    <img src="./imagens/logos/yuumi.jpeg" alt="Logo" class="h-20"> 
+                </a>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="index.html" class="font-medium text-lg uppercase text-brand-light-black hover:text-opacity-70 transition">Início</a>
+                <a href="resultados.html" class="font-medium text-lg uppercase text-brand-light-black hover:text-opacity-70 transition">Todas as Receitas</a>
+                <a href="#" class="font-medium text-lg uppercase text-brand-light-black hover:text-opacity-70 transition">Contato</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <a href="#" class="text-brand-light-black">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </a>
+
+                <div class="md:hidden">
+                    <details class="relative">
+                        <summary class="list-none cursor-pointer">
+                            <svg class="w-8 h-8 text-brand-light-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                            </svg>
+                        </summary>
+
+                        <nav class="absolute top-12 right-0 bg-[#FFEAA2] shadow-lg rounded-lg p-4 w-56">
+                            <div class="flex flex-col space-y-3">
+                            <a href="index.html" class="font-medium text-brand-light-black hover:bg-yellow-200/50 p-2 rounded">Início</a>
+                            <a href="resultados.html" class="font-medium text-brand-light-black hover:bg-yellow-200/50 p-2 rounded">Todas as Receitas</a>
+                            <a href="#" class="font-medium text-brand-light-black hover:bg-yellow-200/50 p-2 rounded">Contato</a>
+                            </div>
+                        </nav>
+                    </details>
+                </div>
+                </div>
+
+        </div>
+    </header>
+
+
+</body>
+</html>

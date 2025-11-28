@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chocolate Quente - Yuumi</title>
+    <script src="tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .hero-section {
+            background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1740&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="bg-white font-poppins">
+    <header id="header-placeholder"></header>
+    <!-- Seção Hero com imagem de fundo -->
+    <div class="hero-section w-full h-96 relative">
+        <!-- Overlay escuro -->
+        <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        
+        <!-- Barra de pesquisa centralizada -->
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-full max-w-2xl px-4">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Buscar receitas..." 
+                        class="w-full py-4 px-6 rounded-full text-lg border-2 border-white bg-white bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-yellow"
+                    >
+                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-brand-yellow text-brand-light-black py-2 px-6 rounded-full font-semibold hover:bg-yellow-200 transition duration-300">
+                        Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container da receita -->
+    <div class="w-full max-w-4xl mx-auto px-6 py-12">
+        
+        <!-- Título da receita -->
+        <h1 class="text-5xl font-bold text-center text-[#1D1D1D] mb-12">CHOCOLATE QUENTE</h1>
+
+        <!-- Conteúdo em grid de 2 colunas -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            <!-- Coluna da esquerda - Ingredientes -->
+            <div class="space-y-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-[#1D1D1D] mb-6">Ingredientes:</h2>
+                    <ul class="space-y-3 text-lg">
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">•</span>
+                            <span>2 xícaras de leite</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">•</span>
+                            <span>1/2 xícara de chocolate em pó</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">•</span>
+                            <span>1/2 colher de sopa de açúcar (ou a gosto)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">•</span>
+                            <span>1/2 colher de chá de extrato de baunilha</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">•</span>
+                            <span>Uma pitada de sal</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">•</span>
+                            <span>Chantilly (opcional)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">•</span>
+                            <span>Chocolate ralado (opcional)</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Imagem abaixo dos ingredientes -->
+                <div class="rounded-lg h-64 flex items-center justify-center">
+                    <img src="./imagens/receitas/ChocolateQuente.jpg" alt="Chocolate Quente" class="w-full h-60 object-cover">
+                </div>
+            </div>
+
+            <!-- Coluna da direita - Modo de preparo -->
+            <div class="space-y-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-[#1D1D1D] mb-6">Modo de Preparo:</h2>
+                    <ol class="space-y-4 text-lg">
+                        <li class="flex items-start">
+                            <span class="bg-[#1D1D1D] text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 text-sm">1</span>
+                            <span>Em uma panela, aqueça o leite em fogo médio até que comece a ferver. Mexa ocasionalmente para evitar que o leite grude no fundo da panela.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-[#1D1D1D] text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 text-sm">2</span>
+                            <span>Adicione o chocolate em pó, o açúcar e o sal ao leite quente. Mexa bem até que o chocolate e o açúcar estejam completamente dissolvidos.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-[#1D1D1D] text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 text-sm">3</span>
+                            <span>Reduza o fogo para médio-baixo e deixe o chocolate quente cozinhar por mais 2 a 4 minutos, mexendo constantemente. Isso ajudará a engrossar ligeiramente a bebida.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-[#1D1D1D] text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 text-sm">4</span>
+                            <span>Retire a panela do fogo e adicione o extrato de baunilha. Misture bem.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-[#1D1D1D] text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 text-sm">5</span>
+                            <span>Despeje o chocolate quente em xícaras ou canecas. Se desejar, adicione chantilly por cima para decorar e polvilhe com chocolate ralado.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-[#1D1D1D] text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 text-sm">6</span>
+                            <span>Sirva imediatamente e aproveite o delicioso chocolate quente!</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Informações adicionais -->
+                <div class="bg-gray-100 rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-brand-light-black mb-3">Informações Adicionais:</h3>
+                    <p class="text-lg">
+                        Lembre-se de que você pode ajustar a quantidade de açúcar de acordo com seu gosto pessoal. Além disso, você também pode adicionar outros ingredientes, como canela em pó ou marshmallows, para dar um toque extra ao seu chocolate quente.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer-placeholder"></footer>
+
+    <script src="./scripts/main.js"></script>
+</body>
+</html>
