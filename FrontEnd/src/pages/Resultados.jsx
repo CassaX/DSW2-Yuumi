@@ -1,67 +1,82 @@
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
+import useLocalStorage from "../hooks/useLocalStorage"; // Importe o R6
 
 export default function Resultados() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const location = useLocation(); 
 
-  return (
-    <main className="container mx-auto p-4 font-poppins">
+    // 1. Recebe os dados passados pelo navigate (a busca mais recente)
+    const newRecipesData = location.state || { recipes: null, query: 'Última Busca' };
+    
+    // 2. R6: Hook para armazenar o último resultado de busca no localStorage
+    // O valor inicial será o que veio do estado de navegação (newRecipesData)
+    const [lastResults, setLastResults] = useLocalStorage('lastSearchResults', newRecipesData);
 
-      <section className="my-8">
-        <h1 className="text-3xl font-bold">Resultados</h1>
-        <p className="text-gray-600">Foram encontradas 2 receitas</p>
-      </section>
+    // 3. Define qual conjunto de dados usar para renderizar:
+    // Prioriza os dados que acabaram de chegar (newRecipesData) se forem novos,
+    // senão, usa os dados salvos do localStorage.
+    const recipesToRender = newRecipesData.recipes || lastResults.recipes || [];
+    const queryToRender = newRecipesData.query || lastResults.query || 'Nenhuma Busca Encontrada';
+    
+    // 💡 Efeito para salvar o novo resultado no localStorage assim que a página carrega
+    useEffect(() => {
+        // Verifica se há novas receitas e se elas são diferentes das salvas
+        if (newRecipesData.recipes && newRecipesData.recipes.length > 0) {
+            setLastResults(newRecipesData); // Salva o novo conjunto no R6
+        }
+    }, [newRecipesData, setLastResults]);
 
-      <section className="my-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    const hasRecipes = recipesToRender.length > 0 && !recipesToRender.error;
 
-          <article
-            onClick={() => navigate("/receita/bolo-cenoura")}
-            className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden hover:-translate-y-1 transition"
-          >
-            <img src="/imagens/receitas/boloDeCenouras.avif" className="w-full h-40 object-cover" />
-            <div className="p-4">
-              <h3 className="font-semibold">Bolo de Cenoura</h3>
-              <p className="text-sm text-gray-500">Por: Chef Ana</p>
-            </div>
-          </article>
+    return (
+        <main className="container mx-auto p-4 font-poppins">
 
-          <article
-            onClick={() => navigate("/receita/bolo-fuba")}
-            className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden hover:-translate-y-1 transition"
-          >
-            <img src="/imagens/receitas/BoloFuba.jpeg" className="w-full h-40 object-cover" />
-            <div className="p-4">
-              <h3 className="font-semibold">Bolo de Fubá</h3>
-              <p className="text-sm text-gray-500">Por: Chef Pedro</p>
-            </div>
-          </article>
-          
-          {/* Adicionando as receitas de populares também aqui, para preencher a lista de resultados */}
-           <article
-              onClick={() => navigate("/receita/costela-assada")}
-              className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300"
-          >
-              <img src="/imagens/receitas/costela.jpeg" alt="Costela Assada" className="w-full h-40 object-cover" />
-              <div className="p-4">
-                  <h3 className="font-semibold text-brand-light-black">Costela Assada</h3>
-                  <p className="text-sm text-gray-500 mt-1">Por: Chef Cassatti</p>
-              </div>
-          </article>
+            <section className="my-8">
+                <h1 className="text-3xl font-bold text-brand-light-black">
+                    Resultados para: "{queryToRender}"
+                </h1>
+                <p className="text-gray-600">
+                    {hasRecipes 
+                        ? `Foram encontradas ${recipesToRender.length} receitas geradas pela IA.` 
+                        : (queryToRender === 'Última Busca' 
+                            ? 'Nenhuma busca recente encontrada. Tente buscar na Home.'
+                            : 'A IA não retornou receitas para esta busca. Tente refinar sua pesquisa.')
+                    }
+                </p>
+            </section>
 
-          <article
-              onClick={() => navigate("/receita/lasanha")}
-              className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300"
-          >
-              <img src="/imagens/receitas/lasanha.jpeg" alt="Lasanha" className="w-full h-40 object-cover" />
-              <div className="p-4">
-                  <h3 className="font-semibold text-brand-light-black">Lasanha</h3>
-                  <p className="text-sm text-gray-500 mt-1">Por: Chef Nathalia</p>
-              </div>
-          </article>
-          
+            <section className="my-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-        </div>
-      </section>
-    </main>
-  );
+                    {hasRecipes ? (
+                        // Mapeia o array de receitas dinâmicas (R5)
+                        recipesToRender.map((recipe, index) => (
+                            <article
+                                key={index}
+                                // Navega para a receita e passa o objeto completo
+                                onClick={() => navigate(`/receita/${index}`, { state: { recipe: recipe } })}
+                                className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300"
+                            >
+                                <img 
+                                    src={recipe.image_url || "/imagens/placeholder.jpeg"} 
+                                    alt={recipe.title} 
+                                    className="w-full h-48 object-cover" 
+                                />
+                                <div className="p-4">
+                                    <h3 className="font-semibold text-brand-light-black line-clamp-1">{recipe.title}</h3>
+                                    <p className="text-sm text-gray-500 mt-1">Tempo: {recipe.time || 'N/A'}</p>
+                                </div>
+                            </article>
+                        ))
+                    ) : (
+                        // Mensagem de erro/falha
+                        <div className="col-span-full text-center py-10 text-gray-500">
+                            {recipesToRender.error ? `Erro da API: ${recipesToRender.message}` : 'Nenhuma receita para exibir. Faça uma nova busca na página inicial.'}
+                        </div>
+                    )}
+                </div>
+            </section>
+        </main>
+    );
 }
