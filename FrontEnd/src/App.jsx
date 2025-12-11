@@ -10,13 +10,14 @@ import Receita from "./pages/Receita";
 export default function App() {
   return (
     <BrowserRouter>
-      <Header />
+      {/* Header é renderizado uma única vez aqui */}
+      <Header /> 
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/ingredientes" element={<Ingredientes />} />
         <Route path="/resultados" element={<Resultados />} />
-        <Route path="/receita/:id" element={<Receita />} />
+        <Route path="/receita/:id" element={<Receita />} /> 
       </Routes>
     </BrowserRouter>
   );

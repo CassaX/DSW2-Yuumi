@@ -4,7 +4,7 @@ export default function Resultados() {
   const navigate = useNavigate();
 
   return (
-    <main className="container mx-auto p-4">
+    <main className="container mx-auto p-4 font-poppins">
 
       <section className="my-8">
         <h1 className="text-3xl font-bold">Resultados</h1>
@@ -35,6 +35,30 @@ export default function Resultados() {
               <p className="text-sm text-gray-500">Por: Chef Pedro</p>
             </div>
           </article>
+          
+          {/* Adicionando as receitas de populares também aqui, para preencher a lista de resultados */}
+           <article
+              onClick={() => navigate("/receita/costela-assada")}
+              className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300"
+          >
+              <img src="/imagens/receitas/costela.jpeg" alt="Costela Assada" className="w-full h-40 object-cover" />
+              <div className="p-4">
+                  <h3 className="font-semibold text-brand-light-black">Costela Assada</h3>
+                  <p className="text-sm text-gray-500 mt-1">Por: Chef Cassatti</p>
+              </div>
+          </article>
+
+          <article
+              onClick={() => navigate("/receita/lasanha")}
+              className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300"
+          >
+              <img src="/imagens/receitas/lasanha.jpeg" alt="Lasanha" className="w-full h-40 object-cover" />
+              <div className="p-4">
+                  <h3 className="font-semibold text-brand-light-black">Lasanha</h3>
+                  <p className="text-sm text-gray-500 mt-1">Por: Chef Nathalia</p>
+              </div>
+          </article>
+          
 
         </div>
       </section>
