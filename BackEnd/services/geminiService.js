@@ -1,87 +1,92 @@
+// backend/services/geminiService.js
+
 const { GoogleGenAI } = require('@google/genai');
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const model = "gemini-2.5-flash"; 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
 
-exports.generateRecipeContent = async (command) => {
-    const singleRecipeSchema = {
-        type: "object",
-        properties: {
-            title: { type: "string", description: "O título criativo da receita." },
-            image_url: { type: "string", description: "Uma URL de imagem placeholder relevante (simulada)." },
-            time: { type: "string", description: "Tempo total de preparo (ex: 45 min)." },
+// Inicializa o cliente Gemini
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const MODEL = 'gemini-2.5-flash'; // Rápido e excelente para este tipo de tarefa
 
-            ingredients: {
-                type: "array",
-                description: "Lista de ingredientes, onde cada item é um ingrediente com sua quantidade e unidade.",
-                items: { type: "string" } // Ex: "2 xícaras de farinha", "100g de manteiga"
-            },
-            steps: {
-                type: "array",
-                description: "Lista de passos de preparo, onde cada item é uma instrução numerada.",
-                items: { type: "string" } // Ex: "Pré-aqueça o forno a 180°C."
-            },
-            
+//Esquema JSON para garantir o formato da saída
+const recipeSchema = {
+    type: "object",
+    properties: {
+        title: { type: "string", description: "O título da receita." },
+        time: { type: "string", description: "Tempo total de preparo (ex: 45 min)." },
+        ingredients: {
+            type: "array",
+            description: "Lista de ingredientes, onde cada item é um ingrediente com sua quantidade.",
+            items: { type: "string" }
         },
-        required: ["title", "image_url", "time", "ingredients", "steps"]
-    };
-
-    // Esquema FINAL: um objeto contendo a lista (array) de receitas (continua o mesmo)
-    const responseSchema = {
-        type: "object",
-        properties: {
-            recipes: { 
-                type: "array",
-                description: "Uma lista de 3 receitas completas.",
-                items: singleRecipeSchema
-            }
+        steps: {
+            type: "array",
+            description: "Lista de passos de preparo.",
+            items: { type: "string" }
         },
-        required: ["recipes"]
-    }
+    },
+    required: ["title", "time", "ingredients", "steps"]
+};
 
-    const systemInstruction = `Você é um Chef assistente experiente. Sua única função é gerar receitas. O usuário fornecerá um comando. Você DEVE responder APENAS com um objeto JSON válido, seguindo o esquema fornecido.`;
-    
-    try {
-        // PROMPT ALTERADO PARA PEDIR TRÊS RECEITAS
-        const prompt = `Com base neste pedido: "${command}", gere TRÊS receitas completas, variadas e criativas.`;
-        
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            config: {
-                systemInstruction: systemInstruction,
-                responseMimeType: "application/json",
-                responseSchema: responseSchema, // USANDO O NOVO ESQUEMA DE ARRAY
-                temperature: 0.7,
-            }
-        });
-
-        const jsonString = response.text.trim();
-        // A IA agora retorna o objeto: { "recipes": [...] }
-        return JSON.parse(jsonString); 
-
-    } catch (error) {
-        console.error("Erro na chamada da Gemini API (Geração):", error);
-        throw new Error("Falha na geração da receita pela Inteligência Artificial.");
-    }
+const responseSchema = {
+    type: "object",
+    properties: {
+        recipes: {
+            type: "array",
+            description: "Lista de receitas geradas, contendo sempre apenas um item.",
+            items: recipeSchema,
+        }
+    },
+    required: ["recipes"]
 };
 
 
-exports.translateContent = async (text, targetLang) => {
-    try {
-        const prompt = `Traduza o seguinte texto para o idioma com o código: ${targetLang}. Mantenha a formatação do texto original, se aplicável. TEXTO A TRADUZIR: "${text}"`;
+/**
+ * Função Core que Gera o Conteúdo JSON usando Structured Output do Gemini
+ * @param {string} promptText - O prompt de entrada para a geração da receita
+ */
+const generateRecipeContent = async (promptText) => {
+    if (!GEMINI_API_KEY) {
+        throw new Error("GEMINI_API_KEY não está configurada no .env.");
+    }
 
+    try {
         const response = await ai.models.generateContent({
-            model: model,
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            model: MODEL,
+            contents: [
+                {
+                    role: "user",
+                    parts: [{
+                        text: promptText
+                    }]
+                }
+            ],
             config: {
-                temperature: 0.1, 
-            }
+                systemInstruction: "Você é um Chef assistente experiente. Sua única função é gerar UMA receita em Português-BR. Você DEVE responder APENAS com um objeto JSON seguindo o esquema fornecido.",
+                responseMimeType: "application/json",
+                responseSchema: responseSchema,
+                temperature: 0.7,
+                maxOutputTokens: 2048,
+            },
         });
-        return response.text.trim();
+
+        const jsonString = response.text.trim();
+        
+        const data = JSON.parse(jsonString);
+        return data.recipes;
 
     } catch (error) {
-        console.error("Erro na chamada da Gemini API (Tradução):", error);
-        throw new Error("Falha na tradução pela Inteligência Artificial.");
+        console.error("Erro na chamada da Gemini API:", error.message);
+        throw new Error(`Falha na geração da receita pela Gemini API. Verifique a chave e os limites. Erro: ${error.message}`);
     }
+};
+
+exports.generateBySearch = async (query) => {
+    const prompt = `Gere uma receita detalhada sobre: "${query}".`;
+    return generateRecipeContent(prompt);
+};
+
+exports.generateByIngredients = async (ingredients) => {
+    const prompt = `Gere uma receita rápida e simples que utilize APENAS estes ingredientes: ${ingredients.join(', ')}.`;
+    return generateRecipeContent(prompt);
 };

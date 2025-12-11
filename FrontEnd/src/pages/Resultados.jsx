@@ -10,20 +10,15 @@ export default function Resultados() {
     const newRecipesData = location.state || { recipes: null, query: 'Última Busca' };
     
     // 2. R6: Hook para armazenar o último resultado de busca no localStorage
-    // O valor inicial será o que veio do estado de navegação (newRecipesData)
     const [lastResults, setLastResults] = useLocalStorage('lastSearchResults', newRecipesData);
 
     // 3. Define qual conjunto de dados usar para renderizar:
-    // Prioriza os dados que acabaram de chegar (newRecipesData) se forem novos,
-    // senão, usa os dados salvos do localStorage.
     const recipesToRender = newRecipesData.recipes || lastResults.recipes || [];
     const queryToRender = newRecipesData.query || lastResults.query || 'Nenhuma Busca Encontrada';
     
-    // 💡 Efeito para salvar o novo resultado no localStorage assim que a página carrega
     useEffect(() => {
-        // Verifica se há novas receitas e se elas são diferentes das salvas
         if (newRecipesData.recipes && newRecipesData.recipes.length > 0) {
-            setLastResults(newRecipesData); // Salva o novo conjunto no R6
+            setLastResults(newRecipesData); 
         }
     }, [newRecipesData, setLastResults]);
 

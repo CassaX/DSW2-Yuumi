@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Ingredientes from "./pages/Ingredientes";
 import Resultados from "./pages/Resultados";
 import Receita from "./pages/Receita";
+import HistoricoReceitas from "./pages/HistoricoReceitas";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/ingredientes" element={<Ingredientes />} />
         <Route path="/resultados" element={<Resultados />} />
         <Route path="/receita/:id" element={<Receita />} /> 
+        <Route path="/historico-receitas" element={<HistoricoReceitas />} />
       </Routes>
     </BrowserRouter>
   );

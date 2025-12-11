@@ -7,6 +7,7 @@
     "vite": "^7.2.7"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router-dom": "^7.10.1"
@@ -16,5 +17,4 @@
     "build": "vite build",
     "preview": "vite preview"
   }
-  
 }

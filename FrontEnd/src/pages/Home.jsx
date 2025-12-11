@@ -1,103 +1,83 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom"; 
-import { searchRecipe } from "../services/aiService"; // Busca Geral (Busca do Usuário)
-import { generateByIngredients } from "../services/aiService"; // Usado para a Receita do Dia/Populares
-import useLocalStorage from "../hooks/useLocalStorage"; // R6: Persistência de dados
+import { generateBySearch } from "../services/aiService"; 
+import useLocalStorage from "../hooks/useLocalStorage"; 
+// Se você está usando Heroicons, adicione:
+// import { XMarkIcon } from '@heroicons/react/24/solid'; 
+
+// 🎯 Dados Estáticos (Mock Data)
+const MOCK_RECIPE_OF_THE_DAY = {
+    title: "Pizza de Pepperoni Caseira",
+    description: "Aprenda a fazer uma pizza deliciosa e crocante no conforto da sua casa. Esta receita foi inserida manualmente para minimizar o uso da API.",
+    image_url: "/imagens/receitas/PizzaPepperoni.jpg",
+    slug: "pizza-pepperoni" 
+};
+
+const MOCK_POPULAR_RECIPES = [
+    { title: "Bolo de Cenoura", author: "Chef Ana", image_url: "/imagens/receitas/boloDeCenouras.avif", slug: "bolo-cenoura" },
+    { title: "Costela Assada", author: "Chef Cassatti", image_url: "/imagens/receitas/costela.jpeg", slug: "costela-assada" },
+    { title: "Lasanha", author: "Chef Nathalia", image_url: "/imagens/receitas/lasanha.jpeg", slug: "lasanha" },
+];
+
 
 export default function Home() {
     const navigate = useNavigate();
     
-    // R6: Estados persistentes no localStorage
+    // R6: Histórico de termos de pesquisa
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [searchHistory, setSearchHistory] = useLocalStorage('recentSearches', []);
-    const [homeRecipes, setHomeRecipes] = useLocalStorage('homeRecipes', { 
-        dayRecipe: null, 
-        popularRecipes: [] 
-    });
-    const [hasLoaded, setHasLoaded] = useState(false); // Para controlar o carregamento inicial
-
-    // 💡 Efeito para carregar as receitas da Home (R5 e R6)
-    useEffect(() => {
-        // Se já temos receitas salvas, pulamos a chamada da API
-        if (homeRecipes.dayRecipe && homeRecipes.popularRecipes.length > 0) {
-            setHasLoaded(true);
-            return;
-        }
-
-        const fetchHomeRecipes = async () => {
-            setLoading(true);
-
-            try {
-                // 1. Geração da Receita do Dia (comando mais específico)
-                const dayRecipeCommand = "Gere 1 receita rápida e inspiradora para a 'Receita do Dia'.";
-                const dayRecipeResult = await searchRecipe(dayRecipeCommand);
-                const dayRecipe = dayRecipeResult[0]; // Pega a primeira (e única) receita
-
-                // 2. Geração das 3 Receitas Populares (comando mais genérico)
-                const popularCommand = "Gere 3 receitas populares e variadas para a seção de 'Receitas Populares'.";
-                const popularRecipes = await searchRecipe(popularCommand);
-
-                // R6: Salva no localStorage (persiste a informação)
-                setHomeRecipes({
-                    dayRecipe: dayRecipe,
-                    popularRecipes: popularRecipes.slice(0, 3) 
-                });
-
-            } catch (error) {
-                console.error("Erro ao carregar receitas da Home:", error);
-                // Define valores vazios em caso de falha
-                setHomeRecipes({ dayRecipe: null, popularRecipes: [] });
-            } finally {
-                setLoading(false);
-                setHasLoaded(true);
-            }
-        };
-
-        if (!hasLoaded) {
-             fetchHomeRecipes();
-        }
-
-    }, [hasLoaded, homeRecipes, setHomeRecipes]); 
-
-
-    // Função para lidar com a busca do usuário (busca geral)
+    
+    // 🎯 REINTEGRADO: Hook para o histórico de RECEITAS GERADAS (R6)
+    const [generatedRecipesHistory, setGeneratedRecipesHistory] = useLocalStorage('generatedRecipesHistory', []);
+    
+    
     const handleSearch = async () => {
         if (!searchTerm.trim()) return;
 
         setLoading(true);
         const newQuery = searchTerm.trim();
         
-        // R6: Salva a nova pesquisa no histórico
+        // R6: Salva a nova pesquisa no histórico de termos
         const updatedHistory = [newQuery, ...searchHistory.filter(q => q !== newQuery)].slice(0, 5);
         setSearchHistory(updatedHistory);
 
-        // R5: Chama a API de IA com a busca
-        const recipes = await searchRecipe(newQuery);
+        const recipes = await generateBySearch(newQuery);
+
+        // 🚨 BLOCO REINTEGRADO: Acumula as receitas geradas
+        if (recipes && recipes.length > 0) {
+            // Adiciona a query de origem à receita antes de salvar
+            const newRecipes = recipes.map(r => ({ ...r, sourceQuery: newQuery }));
+            
+            // ACUMULAÇÃO: Adiciona as novas receitas no topo das antigas
+            setGeneratedRecipesHistory(prevHistory => [...newRecipes, ...prevHistory]);
+        }
+        // FIM DO BLOCO REINTEGRADO
 
         setLoading(false);
         
-        // Navega para a página de resultados, passando os dados
         navigate("/resultados", { state: { recipes: recipes, query: newQuery } });
     };
 
-    // Função para tratar a tecla Enter
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             handleSearch();
         }
     };
-
-
-    const { dayRecipe, popularRecipes } = homeRecipes;
-    const recipeOfTheDayReady = hasLoaded && dayRecipe;
-    const popularRecipesReady = hasLoaded && popularRecipes.length > 0;
+    
+    // 🎯 FUNÇÃO DE LIMPAR HISTÓRICO DE TERMOS (Mantida)
+    const handleClearHistory = () => {
+        if (window.confirm("Tem certeza que deseja apagar todo o histórico de pesquisas recentes?")) {
+            setSearchHistory([]);
+        }
+    };
 
 
     return (
         <main className="bg-gray-50 font-poppins min-h-screen">
-
-            {/* HERO */}
+            {/* ... (O restante do JSX permanece o mesmo) ... */}
+            
+            {/* HERO / BUSCA */}
             <section
                 className="relative h-96 flex items-center justify-center text-center"
                 style={{
@@ -107,6 +87,7 @@ export default function Home() {
                     backgroundPosition: "center"
                 }}
             >
+                {/* ... (Bloco de Busca) ... */}
                 <div className="absolute inset-0 bg-black/50"></div>
 
                 <div className="relative z-10 px-4">
@@ -143,7 +124,18 @@ export default function Home() {
             {/* Histórico de Pesquisa (R6) */}
             {searchHistory.length > 0 && (
                 <section className="container mx-auto p-4 my-6">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-3">Pesquisas Recentes:</h3>
+                    
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-lg font-semibold text-gray-700">Pesquisas Recentes:</h3>
+                        
+                        <button
+                            onClick={handleClearHistory}
+                            className="text-red-500 hover:text-red-700 text-sm font-medium flex items-center gap-1 transition"
+                        >
+                            Limpar Histórico
+                        </button>
+                    </div>
+
                     <div className="flex flex-wrap gap-2">
                         {searchHistory.map((query, index) => (
                             <button
@@ -158,73 +150,55 @@ export default function Home() {
                 </section>
             )}
 
-            {/* RECEITA DO DIA (R5 Dinâmico) */}
+
+            {/* RECEITA DO DIA (Estático) */}
             <section className="container mx-auto p-4 my-12">
                 <h2 className="text-2xl font-bold text-brand-light-black mb-6">Receita do Dia</h2>
-                
-                {loading && !recipeOfTheDayReady && (
-                    <div className="text-center text-gray-500">Carregando a Receita do Dia...</div>
-                )}
-                
-                {recipeOfTheDayReady && (
-                    <article 
-                        className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row items-center cursor-pointer"
-                        onClick={() => navigate("/receita/day", { state: { recipe: dayRecipe } })} 
-                    >
-                        <div className="w-full md:w-1/2">
-                            <img 
-                                src={dayRecipe.image_url || "/imagens/placeholder.jpeg"} 
-                                alt={dayRecipe.title} 
-                                className="w-full h-80 object-cover" 
-                            />
-                        </div>
 
-                        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-                            <h3 className="text-2xl font-bold text-brand-light-black mb-4">
-                                {dayRecipe.title}
-                            </h3>
+                <article className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row items-center">
+                    <div className="w-full md:w-1/2">
+                        <img src={MOCK_RECIPE_OF_THE_DAY.image_url} alt={MOCK_RECIPE_OF_THE_DAY.title} className="w-full h-80 object-cover" />
+                    </div>
 
-                            <p className="text-gray-600 mb-6 line-clamp-3">
-                                {dayRecipe.instructions ? dayRecipe.instructions.substring(0, 150) + '...' : 'Descrição indisponível.'}
-                            </p>
+                    <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
+                        <h3 className="text-2xl font-bold text-brand-light-black mb-4">
+                            {MOCK_RECIPE_OF_THE_DAY.title}
+                        </h3>
 
-                            <button 
-                                className="bg-[#FFEAA2] text-brand-light-black self-start py-3 px-6 rounded-full font-semibold hover:bg-yellow-200 transition">
-                                Ver Receita Completa
-                            </button>
-                        </div>
-                    </article>
-                )}
+                        <p className="text-gray-600 mb-6">
+                            {MOCK_RECIPE_OF_THE_DAY.description}
+                        </p>
+
+                        <button 
+                            onClick={() => navigate(`/receita/${MOCK_RECIPE_OF_THE_DAY.slug}`)} 
+                            className="bg-[#FFEAA2] text-brand-light-black self-start py-3 px-6 rounded-full font-semibold hover:bg-yellow-200 transition">
+                            Ver Receita Completa
+                        </button>
+                    </div>
+                </article>
             </section>
 
-            {/* RECEITAS POPULARES (R5 Dinâmico) */}
+            {/* RECEITAS POPULARES (Estático) */}
             <section className="container mx-auto p-4 my-12">
                 <h2 className="text-2xl font-bold text-brand-light-black mb-6">Receitas Populares</h2>
-                
-                {loading && !popularRecipesReady && (
-                    <div className="text-center text-gray-500">Carregando Receitas Populares...</div>
-                )}
-
-                {popularRecipesReady && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        
-                        {popularRecipes.map((recipe, index) => (
-                            <article
-                                key={index}
-                                // Navega para a página de receita passando o objeto
-                                onClick={() => navigate(`/receita/${index}`, { state: { recipe: recipe } })}
-                                className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300"
-                            >
-                                <img src={recipe.image_url || "/imagens/placeholder.jpeg"} alt={recipe.title} className="w-full h-40 object-cover" />
-                                <div className="p-4">
-                                    <h3 className="font-semibold text-brand-light-black line-clamp-1">{recipe.title}</h3>
-                                    <p className="text-sm text-gray-500 mt-1">Tempo: {recipe.time || 'N/A'}</p>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    {MOCK_POPULAR_RECIPES.map((recipe, index) => (
+                        <article
+                            key={index}
+                            onClick={() => navigate(`/receita/${recipe.slug}`)}
+                            className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300"
+                        >
+                            <img src={recipe.image_url} alt={recipe.title} className="w-full h-40 object-cover" />
+                            <div className="p-4">
+                                <h3 className="font-semibold text-brand-light-black">{recipe.title}</h3>
+                                <p className="text-sm text-gray-500 mt-1">Por: {recipe.author}</p>
+                            </div>
+                        </article>
+                    ))}
+                </div>
             </section>
+
         </main>
     );
 }

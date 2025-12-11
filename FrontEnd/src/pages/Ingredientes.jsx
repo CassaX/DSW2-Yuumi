@@ -1,6 +1,8 @@
-import React, { useState } from 'react'; // Importe useState
+import React, { useState } from 'react'; 
 import { useNavigate } from "react-router-dom";
 import { generateByIngredients } from "../services/aiService"; // R5: Importe a função de geração
+import useLocalStorage from "../hooks/useLocalStorage"; // 🎯 NOVO: Importe o R6 Hook
+
 
 export default function Ingredientes() {
     const navigate = useNavigate();
@@ -10,6 +12,10 @@ export default function Ingredientes() {
     
     // Estado para o carregamento e desabilitar o botão
     const [loading, setLoading] = useState(false);
+    
+    // 🎯 NOVO ESTADO: Hook para o histórico de receitas geradas (R6)
+    const [generatedRecipesHistory, setGeneratedRecipesHistory] = useLocalStorage('generatedRecipesHistory', []);
+
 
     // 💡 Função principal para lidar com a busca por ingredientes
     const handleGenerate = async () => {
@@ -27,6 +33,18 @@ export default function Ingredientes() {
         // Chama a API de IA do back-end
         const recipes = await generateByIngredients(ingredientsArray);
 
+        // 🚨 NOVO CÓDIGO AQUI: SALVA NO HISTÓRICO ACUMULATIVO (R6)
+        if (recipes && recipes.length > 0) {
+            const sourceQuery = `Ingredientes: ${ingredientsArray.join(', ')}`;
+            
+            // Adiciona a query de origem à receita antes de salvar
+            const newRecipes = recipes.map(r => ({ ...r, sourceQuery: sourceQuery }));
+            
+            // ACUMULAÇÃO: Adiciona as novas receitas no topo das antigas
+            setGeneratedRecipesHistory(prevHistory => [...newRecipes, ...prevHistory]);
+        }
+        // FIM DO NOVO CÓDIGO
+        
         setLoading(false);
 
         // Navega para a página de resultados, passando os dados
@@ -55,7 +73,6 @@ export default function Ingredientes() {
                 <div className="absolute inset-0 bg-black/40"></div>
 
                 <div className="absolute inset-0 flex items-center justify-center">
-                    {/* Aqui estava o input da busca, que foi movido para o corpo da página */}
                     <div className="w-full max-w-2xl px-4 relative">
                         <h2 className="text-white text-4xl font-bold text-center">
                             O que você tem na geladeira?
@@ -72,7 +89,7 @@ export default function Ingredientes() {
                 <p className="text-gray-600 mt-3">Digite os ingredientes que você tem, separados por vírgula.</p>
             </div>
 
-            {/* 💡 NOVO: Área de Input e Botão de Geração */}
+            {/* Área de Input e Botão de Geração */}
             <div className="w-full max-w-xl mx-auto px-4 pb-12">
                 <textarea
                     placeholder="Ex: Frango, batata, creme de leite, queijo..."
@@ -93,8 +110,6 @@ export default function Ingredientes() {
                     </button>
                 </div>
             </div>
-
-            {/* Conteúdo original foi simplificado/removido, pois a busca agora é o foco */}
             
         </div>
     );

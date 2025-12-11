@@ -15,14 +15,14 @@ export default function Header() {
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/">
-            <img src="/imagens/logos/yuumi.jpeg" alt="Logo" className="h-20" />
+            <img src="/imagens/logos/yuumi.jpeg" alt="Logo" className="h-32" />
           </Link>
         </div>
 
         {/* Menu Desktop */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/" className="font-medium text-lg uppercase text-brand-light-black">Início</Link>
-          <Link to="/resultados" className="font-medium text-lg uppercase text-brand-light-black">Todas as Receitas</Link>
+          <Link to="/historico-receitas" className="font-medium text-lg uppercase text-brand-light-black">Receitas Geradas</Link>
           <Link to="/ingredientes" className="font-medium text-lg uppercase text-brand-light-black">Ingredientes</Link>
         </nav>
 
