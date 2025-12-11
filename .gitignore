@@ -1,0 +1,11 @@
+# Conteúdo do arquivo .gitignore
+
+# Dependências de Node.js
+/node_modules
+
+# Arquivos de ambiente - ISSO É O MAIS IMPORTANTE
+/.env
+
+# Outros arquivos de build
+/dist
+/build
