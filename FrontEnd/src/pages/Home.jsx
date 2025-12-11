@@ -185,7 +185,7 @@ export default function Home() {
                             </h3>
 
                             <p className="text-gray-600 mb-6 line-clamp-3">
-                                {dayRecipe.instructions.substring(0, 150) + '...'}
+                                {dayRecipe.instructions ? dayRecipe.instructions.substring(0, 150) + '...' : 'Descrição indisponível.'}
                             </p>
 
                             <button 
