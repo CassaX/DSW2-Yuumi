@@ -6,12 +6,12 @@ import { XMarkIcon } from '@heroicons/react/24/solid'; // Se você instalou o He
 export default function HistoricoReceitas() {
     const navigate = useNavigate();
     
-    // 🎯 Carrega o histórico completo de receitas
+    // Carrega o histórico completo de receitas
     const [recipesHistory, setRecipesHistory] = useLocalStorage('generatedRecipesHistory', []);
 
     const hasRecipes = recipesHistory.length > 0;
     
-    // 🎯 NOVA FUNÇÃO: Limpa todo o histórico de receitas geradas
+    //Limpa todo o histórico de receitas geradas
     const handleClearHistory = () => {
         if (window.confirm("Tem certeza que deseja apagar TODO o histórico de receitas geradas? Esta ação não pode ser desfeita.")) {
             setRecipesHistory([]); // Limpa o estado e o LocalStorage
@@ -24,7 +24,7 @@ export default function HistoricoReceitas() {
 
             <section className="my-8">
                 
-                {/* 🎯 TÍTULO E BOTÃO DE LIMPAR (Container Flex) */}
+                {/* TÍTULO E BOTÃO DE LIMPAR */}
                 <div className="flex justify-between items-center mb-3">
                     <h1 className="text-3xl font-bold text-brand-light-black">
                         Receitas Geradas ({recipesHistory.length})
@@ -35,7 +35,7 @@ export default function HistoricoReceitas() {
                             onClick={handleClearHistory}
                             className="text-red-500 hover:text-red-700 text-sm font-medium flex items-center gap-1 transition"
                         >
-                            <XMarkIcon className="h-4 w-4" /> {/* Se estiver usando Heroicons */}
+                            <XMarkIcon className="h-4 w-4" /> 
                             Limpar Histórico
                         </button>
                     )}
